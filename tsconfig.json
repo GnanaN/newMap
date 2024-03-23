@@ -23,7 +23,11 @@
     "paths": {
       //路径映射，相对于baseUrl
       "@/*": ["src/*"]
-    }
+    },
+
+    /* 新增的选项 */
+    "experimentalDecorators": true,
+    "allowJs": true
   },
   "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue"],
   "references": [{ "path": "./tsconfig.node.json" }]

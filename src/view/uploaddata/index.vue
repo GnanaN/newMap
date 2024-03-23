@@ -1,5 +1,5 @@
 <template>
-  <el-card v-show="scene === 0" class="dataShow">
+  <el-card v-if="scene === 0" class="dataShow">
     <el-button type="primary" size="default" icon="Plus" style="margin-bottom:10px" @click="addData">添加数据</el-button>
     <el-button type="primary" size="default" icon="Plus" style="margin-bottom:10px" @click="scene=2">抽屉</el-button>
     <h3>数据列表</h3>
@@ -13,7 +13,7 @@
     </el-table-column>
   </el-table>
   </el-card>
-  <el-card v-show="scene === 1" class="dataLoad">
+  <el-card v-if="scene === 1" class="dataLoad">
     <el-form label-width="100px">
       <el-form-item label="异常名称">
         <el-input v-model="dataUpLoadVar.name"></el-input>
@@ -52,7 +52,7 @@
     </div>
   </el-card>
   <!-- ref="mainCRef" 控制子组件 -->
-  <mainC v-show="scene === 2"  @changemainScene="changeSceneTo"></mainC>
+  <mainC v-if="scene === 2"  @changemainScene="changeSceneTo"></mainC>
 </template>
 
 <script setup lang="ts">
@@ -110,6 +110,8 @@ const cancel = ()=>{
 const changeSceneTo = (num: number)=>{
   scene.value = num
 }
+
+
 
 </script>
 

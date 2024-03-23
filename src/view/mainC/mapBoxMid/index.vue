@@ -3,20 +3,13 @@
 </template>
 
 <script setup lang="ts">
-import {ref, inject, onUnmounted,  watch, nextTick} from 'vue'
+import {ref, inject, onUnmounted, watch, nextTick, onMounted} from 'vue'
 import L from 'leaflet'
 let pscene: any = inject('pscene')
 import 'leaflet.chinatmsproviders'
 
 let map = ref<any>(null);
-//初始化地图
-const initMap = () => {
-  // const mapKey = 'gc0313a16b7141d25ae197a72e2ce004bn'
-  // Define different tile layers for map display
-  // TianDiTu normal and satellite map layers
-
-  // Geoq normal layers
-  const normalm3 = L.tileLayer.chinaProvider(
+const normalm3 = L.tileLayer.chinaProvider(
     'Geoq.Normal.PurplishBlue',
     {}
   )
@@ -39,19 +32,18 @@ const initMap = () => {
     高德地图: Gaode,
     高德影像: Gaodimage,
   }
-
-  // Initialize the map
-
-    map.value = L.map('mapid1', {
+//初始化地图
+const mapValue = {
     crs: L.CRS.EPSG3857,
     center: [32.0603, 118.7969],
     zoom: 12,
     maxZoom: 18,
     minZoom: 5,
     layers: [normalMap],
-    //缩放控制插件
     zoomControl: true
-  })
+  }
+const initMap = () => {
+    map.value = L.map('mapid1', mapValue)
 
   // Add control layers and zoom control to the map
 
@@ -59,29 +51,36 @@ const initMap = () => {
   return map.value
 }
 
-watch(() => pscene.value, (newValue, oldValue) => {
-  if (newValue == 2) {
-    console.log('地图组件')
-    initMap()
+//定义setMapView方法
+const setMapView = (center: L.LatLngExpression, zoom: number) => {
+  if (map.value) {
+    map.value.setView(center, zoom)
   }
-  if (oldValue == 2 && newValue != 2) {
-    console.log('地图组件隐藏')
-    if (map.value) {
-      map.value.remove();
-      map.value = null;
-    }
-  }
+}
+//暴露给父组件的方法
+defineExpose({ setMapView })
+
+//自定义事件
+const emit = defineEmits(['map-moved'])
+onMounted(() => {
+  const mapInstance = initMap()
+  //等初始化完成后，强制地图重新计算大小和位置
   nextTick(() => {
     // 强制地图重新计算大小和位置
-    if (map.value){
-      map.value.invalidateSize();
+    if (mapInstance){
+      mapInstance.invalidateSize();
     }
   });
+
+  mapInstance.on('zoomend dragend', () => {
+    emit('map-moved', { center: mapInstance.getCenter(), zoom: mapInstance.getZoom() })
+  })
 })
 
 
 onUnmounted(() => {
   if (map.value) {
+    map.value.remove();
     map.value = null;
   }
 })
