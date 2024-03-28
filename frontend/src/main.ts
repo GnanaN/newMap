@@ -11,8 +11,8 @@ import gloablComponent from './components/index'
 //导入路由文件
 import router from './router'
 //导入mock文件
-import configureMockServer from './mock/user.ts';
-configureMockServer()
+// import configureMockServer from './mock/user.ts';
+// configureMockServer()
 //导入仓库
 import pinia from './store'
 //引入leaflet文件

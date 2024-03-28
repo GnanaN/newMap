@@ -10,8 +10,9 @@
           <el-form-item prop="password">
             <el-input type="password" prefix-icon="Lock" v-model="LoginForm.password"></el-input>
           </el-form-item>
-          <el-form-item>
+          <el-form-item class = "button-row">
             <el-button type="primary" class="login_but" @click="login">登录</el-button>
+            <el-button type="primary" class="login_but" @click="register">注册</el-button>
           </el-form-item>
         </el-form>
       </el-col>
@@ -95,6 +96,24 @@ const rules = {
     {trigger:'blur', validator:validatorPassword}
   ]
 }
+
+const register = async()=>{
+  console.log(ustore)
+  try{
+    await ustore.userRegister(LoginForm.value)
+    ElNotification({
+      title: `注册成功`,
+      message: '欢迎你的加入',
+      type: 'success'
+    });
+  } catch(error){
+    // 提示登录失败
+    ElNotification({
+      type: 'error',
+      message: (error as Error).message,
+    });
+  }
+}
 </script>
 
 <style lang="scss" scoped>
@@ -108,9 +127,13 @@ const rules = {
     padding: 40px;
     width: 60%;
     top: 30vh;
-    .login_but{
-      width: 100%;
+    .button-row{
+      display: flex;
+      justify-content: space-around ;}
+      .login_but{
+      width: 48%;
     }
+
   }
 }
 </style>
