@@ -32,17 +32,17 @@
       </el-form-item>
       <el-form-item label="异常强度数据" >
         <div class="uploadDiv">
-          <upload ref="loadIntensity"></upload>
+          <upload ref="loadIntensity" ></upload>
         </div>
       </el-form-item>
       <el-form-item label="异常影响数据" >
         <div class="uploadDiv">
-          <upload ref="loadInfluence"></upload>
+          <upload ref="loadInfluence" ></upload>
         </div>
       </el-form-item>
       <el-form-item label="异常属性数据" >
         <div class="uploadDiv">
-          <upload ref="loadProperty"></upload>
+          <upload ref="loadProperty" ></upload>
         </div>
       </el-form-item>
     </el-form>
@@ -57,9 +57,15 @@
 
 <script setup lang="ts">
 import {ref, provide} from 'vue'
+import {reqSubmitData} from '@/api/map/index'
 import upload from './upload/index.vue'
 import mainC from '@/view/mainC/index.vue'
+import { ElMessage } from 'element-plus';
 let scene = ref(0)
+// 父传给子的属性
+// let intensityFileList:Array<any> =[];
+// let impactFileList:Array<any> = [];
+// let attributeFileList:Array<any> = [];
 provide('pscene', scene)
 //数据上传页面所需变量
 let dataUpLoadVar = ref<any>({
@@ -71,7 +77,9 @@ let dataUpLoadVar = ref<any>({
   property:''
 })
 // 获取子组件的实例
-let loadIntensity = ref()
+const loadIntensity = ref()
+const loadInfluence = ref()
+const loadProperty = ref()
 let mainCRef = ref()
 const addData = ()=>{
   scene.value = 1
@@ -79,20 +87,46 @@ const addData = ()=>{
   //导入本地数据
 
 }
-const submitData = ()=>{
+const submitData = () => {
   console.log('提交数据')
-  // 清空数据
-  dataUpLoadVar =  Object.assign(dataUpLoadVar.value,{
-    name:'',
-    type:'',
-    date:'',
-    intensity:'',
-    influence:'',
-    property:''
+  const formData = new FormData()
+  formData.append('name', dataUpLoadVar.value.name)
+  formData.append('type', dataUpLoadVar.value.type)
+  formData.append('date', dataUpLoadVar.value.date)
+  // console.log(loadIntensity.value.fileList[0].url)
+  // console.log(loadInfluence.value.fileList[0].url)
+  // console.log(loadProperty.value.fileList[0].url)
+  formData.append('intensity_file',loadIntensity.value.fileList[0].url)
+  formData.append('impact_file', loadInfluence.value.fileList[0].url)
+  formData.append('attribute_file', loadProperty.value.fileList[0].url)
+
+  // 打印 FormData 对象的内容
+  for (let [key, value] of formData.entries()) {
+    console.log(key, value)
+  }
+
+  // 提交数据
+  reqSubmitData(formData).then(res => {
+    console.log(res)
+    if (res.code === 200) {
+      console.log('提交成功')
+    } else {
+      console.log('提交失败')
+      ElMessage.error('提交失败')
+    }
   })
+  // 清空数据
+  dataUpLoadVar = Object.assign(dataUpLoadVar.value, {
+    name: '',
+    type: '',
+    date: '',
+    // ...
+  })
+
   //切换场景
   scene.value = 0
 }
+
 const cancel = ()=>{
   console.log('取消')
   // 清空数据
@@ -110,6 +144,7 @@ const cancel = ()=>{
 const changeSceneTo = (num: number)=>{
   scene.value = num
 }
+
 
 
 

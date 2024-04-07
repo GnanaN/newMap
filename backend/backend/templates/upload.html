@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>上传文件</title>
+</head>
+<body>
+  <h1>上传文件</h1>
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <p>
+      <label for="{{ form.name.id_for_label }}">异常名称:</label>
+      {{ form.name }}
+    </p>
+    <p>
+      <label for="{{ form.type.id_for_label }}">异常类型:</label>
+      {{ form.type }}
+    </p>
+    <p>
+      <label for="{{ form.date.id_for_label }}">发生时间:</label>
+      {{ form.date }}
+    </p>
+    <p>
+      <label for="{{ form.density_file.id_for_label }}">异常强度数据:</label>
+      {{ form.density_file }}
+    </p>
+    <p>
+      <label for="{{ form.impact_file.id_for_label }}">异常影响数据:</label>
+      {{ form.impact_file }}
+    </p>
+    <p>
+      <label for="{{ form.attribute_file.id_for_label }}">异常属性数据:</label>
+      {{ form.attribute_file }}
+    </p>
+    <button type="submit">提交</button>
+  </form>
+</body>
+</html>

@@ -3,7 +3,7 @@
     v-model:fileList="fileList"
     accept=".zip"
     class="divBoxofUpload"
-    action="https://run.mocky.io/v3/9d059bf9-4660-45f2-925d-ce80ad6c4d15"
+    action="http://127.0.0.1:8000/upload"
     multiple
     :show-file-list="true"
     :on-preview="handlePreview"
@@ -12,6 +12,8 @@
     :limit="1"
     :on-exceed="handleExceed"
     :on-change="handleChange"
+    :on-success="handleSuccess"
+    :http-request="uploadData"
     >
     <el-button size="default" type="primary" style="margin-right:10px;">点击上传压缩包</el-button>
 
@@ -19,15 +21,13 @@
 </template>
 
 <script setup lang="ts">
-  import { ref } from 'vue'
+  import { ref, toRaw } from 'vue'
   import { ElMessage, ElMessageBox } from 'element-plus'
+  import{ reqUploadFile } from '@/api/map/index'
+  import type { UploadProps } from 'element-plus'
 
-  import type { UploadProps, UploadUserFile } from 'element-plus'
-
-  const fileList = ref<UploadUserFile[]>([
-
-  ])
-
+  let fileList = ref<any[]>([])
+  let uploadFlag = ref(false)
   const handleRemove: UploadProps['onRemove'] = (file, uploadFiles) => {
     console.log(file, uploadFiles)
   }
@@ -53,8 +53,26 @@
     )
   }
   const handleChange: UploadProps['onChange'] = (uploadFile, uploadFiles) => {
-    fileList.value = uploadFiles
+
   }
+  const handleSuccess: UploadProps['onSuccess'] = () => {
+
+  }
+  const uploadData: UploadProps['httpRequest'] = async(uploadData) => {
+    const res = await reqUploadFile(uploadData)
+    if (res.code === 200) {
+      console.log(res.data.name,res.data.file_url)
+      fileList.value = [{name:res.data.name , url:res.data.file_url}]
+      console.log('fileList',toRaw(fileList.value))
+      uploadFlag.value = true
+    } else {
+      ElMessage.error('Upload failed')
+    }
+  }
+  defineExpose({
+        fileList,
+        uploadFlag
+      })
 </script>
 
 <style scoped>
