@@ -19,10 +19,13 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    re_path(r'^admin/?$', admin.site.urls),
+    re_path(r'^admin/', admin.site.urls),
     re_path(r'^register/?$', views.register , name='register'),
     re_path(r'^login/?$', views.login_view, name='login'),
     re_path(r'^logout/?$', views.logout_view, name='logout'),
     re_path(r'^upload/?$', views.upload_file, name='upload'),
     re_path(r'^submit/?$', views.submit_form, name='submit'),
+    re_path(r'^getdata/?$', views.get_data, name='anomaly'),
+    re_path(r'^deletedata/?$', views.delete_data, name='anomaly'),
+    re_path(r'^deletefile/?$', views.delete_file, name='anomaly')
 ]

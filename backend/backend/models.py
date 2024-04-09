@@ -1,10 +1,8 @@
 from django.db import models
 import uuid
 
-def generate_unique_name():
-  return str(uuid.uuid4())
-
 class upLoadFile(models.Model):
+
   # name = models.CharField(max_length=255, default=generate_unique_name)  # 文件名
   file_path = models.FileField(upload_to='uploads/')  # 文件路径
   # size = models.IntegerField()  # 文件大小
@@ -19,3 +17,4 @@ class AnomalyData(models.Model):
   name = models.CharField(max_length=200)
   type = models.CharField(max_length=200)
   date = models.DateField()
+

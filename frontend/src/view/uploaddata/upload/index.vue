@@ -12,7 +12,6 @@
     :limit="1"
     :on-exceed="handleExceed"
     :on-change="handleChange"
-    :on-success="handleSuccess"
     :http-request="uploadData"
     >
     <el-button size="default" type="primary" style="margin-right:10px;">点击上传压缩包</el-button>
@@ -23,15 +22,12 @@
 <script setup lang="ts">
   import { ref, toRaw } from 'vue'
   import { ElMessage, ElMessageBox } from 'element-plus'
-  import{ reqUploadFile } from '@/api/map/index'
+  import{ reqUploadFile, reqDeleteFile } from '@/api/map/index'
   import type { UploadProps } from 'element-plus'
 
   let fileList = ref<any[]>([])
   let uploadFlag = ref(false)
-  const handleRemove: UploadProps['onRemove'] = (file, uploadFiles) => {
-    console.log(file, uploadFiles)
-  }
-
+  let id = ref()
   const handlePreview: UploadProps['onPreview'] = (uploadFile) => {
     console.log(uploadFile)
   }
@@ -44,31 +40,49 @@
     )
   }
 
-  const beforeRemove: UploadProps['beforeRemove'] = (uploadFile, uploadFiles) => {
+  const beforeRemove = (uploadFile) => {
+    id = toRaw(fileList.value)[0].id
     return ElMessageBox.confirm(
-      `Cancel the transfer of ${uploadFile.name} ?`
+      `确定要取消上传 ${uploadFile.name} ?`
     ).then(
       () => true,
       () => false
     )
   }
+
+  const handleRemove: UploadProps['onRemove'] = () => {
+    console.log(id)
+    const body_json = {'id': id}
+    reqDeleteFile(body_json).then(res => {
+    console.log(res)
+      if (res.code === 200) {
+        ElMessage.success('Delete success')
+        fileList.value = []
+        uploadFlag.value = false
+      } else {
+        ElMessage.error('Delete failed')
+      }
+    })
+
+  }
   const handleChange: UploadProps['onChange'] = (uploadFile, uploadFiles) => {
 
   }
   const handleSuccess: UploadProps['onSuccess'] = () => {
-
   }
   const uploadData: UploadProps['httpRequest'] = async(uploadData) => {
     const res = await reqUploadFile(uploadData)
+    console.log(res)
     if (res.code === 200) {
-      console.log(res.data.name,res.data.file_url)
-      fileList.value = [{name:res.data.name , url:res.data.file_url}]
+      // console.log(res.data.name,res.data.file_url)
+      fileList.value = [{id:res.data.id,name:res.data.name , url:res.data.file_url}]
       console.log('fileList',toRaw(fileList.value))
       uploadFlag.value = true
     } else {
       ElMessage.error('Upload failed')
     }
   }
+
   defineExpose({
         fileList,
         uploadFlag

@@ -40,7 +40,8 @@ INSTALLED_APPS = [
     'backend',
     'corsheaders',
 ]
-
+MEDIA_ROOT= BASE_DIR / 'uploads'
+print(MEDIA_ROOT)
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',

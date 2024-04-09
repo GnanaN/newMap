@@ -1,17 +1,36 @@
 <template>
-  <el-card v-if="scene === 0" class="dataShow">
+  <el-card v-if="scene === 0" class="dataShow" >
     <el-button type="primary" size="default" icon="Plus" style="margin-bottom:10px" @click="addData">添加数据</el-button>
-    <el-button type="primary" size="default" icon="Plus" style="margin-bottom:10px" @click="scene=2">抽屉</el-button>
+
     <h3>数据列表</h3>
-    <el-table stripe>
-    <el-table-column prop="name" label="异常名称" width="180"></el-table-column>
-    <el-table-column prop="type" label="异常类型" width="180"></el-table-column>
-    <el-table-column prop="date" label="发生时间"></el-table-column>
-    <el-table-column prop="operator" label="操作">
-      <el-button icon="Monitor">综合</el-button>
-      <el-button icon="Delete">删除</el-button>
-    </el-table-column>
-  </el-table>
+    <el-table stripe :data="dataShowVar">
+      <el-table-column label="序号" type="index" align="center" width="90px"></el-table-column>
+        <el-table-column prop="name" label="异常名称" width="180" ></el-table-column>
+        <el-table-column prop="type" label="异常类型" width="180" ></el-table-column>
+        <el-table-column prop="date" label="发生时间" ></el-table-column>
+        <el-table-column prop="operator" label="操作">
+          <template #="{ row }">
+            <el-button
+              size="small"
+              icon="Monitor"
+              @click=""
+            >综合</el-button>
+            <el-popconfirm
+              :title="`确定要删除${row.attrName}属性吗？`"
+              width="250px"
+              @confirm="deleteData(row.id)"
+            >
+              <template #reference>
+                <el-button
+                  size="small"
+                  icon="Delete"
+                >删除</el-button>
+              </template>
+            </el-popconfirm>
+            <el-button size="small" icon="View"  @click="scene=2">展示</el-button>
+          </template>
+        </el-table-column>
+    </el-table>
   </el-card>
   <el-card v-if="scene === 1" class="dataLoad">
     <el-form label-width="100px">
@@ -20,10 +39,10 @@
       </el-form-item>
       <el-form-item label="异常类型" >
         <el-select v-model="dataUpLoadVar.type">
-          <el-option label="火灾" value="fire"></el-option>
-          <el-option label="地震" value="earthquake"></el-option>
-          <el-option label="水华" value="algae_bloom"></el-option>
-          <el-option label="滑坡" value="landslide"></el-option>
+          <el-option label="火灾" value="火灾"></el-option>
+          <el-option label="地震" value="地震"></el-option>
+          <el-option label="水华" value="水花"></el-option>
+          <el-option label="滑坡" value="滑坡"></el-option>
           <el-option label="其他" value="other"></el-option>
         </el-select>
       </el-form-item>
@@ -56,8 +75,8 @@
 </template>
 
 <script setup lang="ts">
-import {ref, provide} from 'vue'
-import {reqSubmitData} from '@/api/map/index'
+import {ref, provide, watch, onBeforeMount, toRaw} from 'vue'
+import {reqSubmitData, reqGetData, reqDeleteData} from '@/api/map/index'
 import upload from './upload/index.vue'
 import mainC from '@/view/mainC/index.vue'
 import { ElMessage } from 'element-plus';
@@ -72,15 +91,21 @@ let dataUpLoadVar = ref<any>({
   name:'',
   type:'',
   date:'',
-  intensity:'',
-  influence:'',
-  property:''
 })
+let dataShowVar = ref<any[]>([{
+  name:'',
+  type:'',
+  date:'',
+  intensity_file:'',
+  impact_file:'',
+  attribute_file:''
+
+}])
 // 获取子组件的实例
 const loadIntensity = ref()
 const loadInfluence = ref()
 const loadProperty = ref()
-let mainCRef = ref()
+// let mainCRef = ref()
 const addData = ()=>{
   scene.value = 1
   console.log('添加数据')
@@ -144,10 +169,40 @@ const cancel = ()=>{
 const changeSceneTo = (num: number)=>{
   scene.value = num
 }
+// 获取数据
+const getData = async()=>{
+  const res = await reqGetData()
+  if (res.code === 200){
+    dataShowVar.value = res.data
+  }
+  else{
+    console.log('获取数据失败')
+  }
+}
+// 场景切换为0时获取数据，更新表格
+watch(scene, (newVal)=>{
+  if (newVal === 0){
+    getData()
+  }
+})
+// 挂载之前获取数据
+onBeforeMount(()=>{
+  getData()
+})
 
-
-
-
+const deleteData = async(row : any) => {
+  console.log('row',row)
+  //删除输入的数据要符合后端要求的格式
+  const body_json = {'id': row}
+  const res = await reqDeleteData(body_json)
+  if (res.code === 200){
+    console.log('删除成功')
+    getData()
+  }
+  else{
+    console.log('删除失败')
+  }
+}
 </script>
 
 <style lang="scss" scoped>

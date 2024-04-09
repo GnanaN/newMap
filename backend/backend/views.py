@@ -76,6 +76,7 @@ def upload_file(request):
       'status': 'success',
       'code': 200,
       'data': {
+        'id': upLoad_data.id,
         'file_url': file_url,
         'name': name
       }
@@ -103,3 +104,66 @@ def submit_form(request):
     anomaly_data = AnomalyData(name=name, type=type, date=date, intensity_file=intensity_file, impact_file=impact_file, attribute_file=attribute_file)
     anomaly_data.save()
     return JsonResponse({'status': 'success', 'code': 200})
+
+# 获取数据
+@csrf_exempt
+def get_data(request):
+  if request.method == 'GET':
+    data = AnomalyData.objects.all()
+    data_list = []
+    for item in data:
+      data_list.append({
+        'id': item.id,
+        'name': item.name,
+        'type': item.type,
+        'date': item.date,
+        'intensity_file': item.intensity_file.url,
+        'impact_file': item.impact_file.url,
+        'attribute_file': item.attribute_file.url
+      })
+    return JsonResponse({'status': 'success', 'code': 200, 'data': data_list})
+  return JsonResponse({'status': 'fail', 'code': 400, 'message': 'Invalid request method'})
+
+
+
+
+@csrf_exempt
+def delete_data(request):
+  if request.method == 'POST':
+    data = json.loads(request.body)
+    id = data.get('id')
+    if not id:
+      return JsonResponse({'status': 'fail', 'code': 400, 'message': 'Missing required fields'})
+    AnomalyData.objects.filter(id=id).delete()
+    response_data = {
+      'status': 'success',
+      'code': 200,
+      'args': data,  # 请求参数
+      'headers': dict(request.headers),  # 请求头
+      'url': request.build_absolute_uri(),  # 请求的完整 URL
+    }
+    return JsonResponse(response_data)
+  return JsonResponse({'status': 'fail', 'code': 400, 'message': 'Invalid request method'})
+
+# 删除上传的文件
+import os
+from django.conf import settings
+@csrf_exempt
+def delete_file(request):
+  if request.method == 'POST':
+    data = json.loads(request.body)
+    id = data.get('id')
+    if not id:
+      return JsonResponse({'status': 'fail', 'code': 400, 'message': 'Missing required fields'})
+    file = upLoadFile.objects.filter(id=id).first()
+    if file:
+      file_path = os.path.join(settings.MEDIA_ROOT, str(file.file_path))
+      if os.path.exists(file_path):
+        os.remove(file_path)
+      file.delete()
+      return JsonResponse({'status': 'success', 'code': 200})
+    return JsonResponse({'status': 'fail', 'code': 400, 'message': 'File not found'})
+  return JsonResponse({'status': 'fail', 'code': 400, 'message': 'Invalid request method'})
+
+# 综合请求
+# @csrf_exempt
