@@ -7,7 +7,8 @@ enum API {
   UPLOAD_FILE = '/upload',
   GET_DATA = '/getdata',
   DELETE_DATA = '/deletedata',
-  DELETE_FILE = '/deletefile'
+  DELETE_FILE = '/deletefile',
+  GENE_URL = '/generate'
 }
 
 
@@ -43,4 +44,13 @@ export const reqDeleteData = (data: any) => {
 // 删除上传的文件接口
 export const reqDeleteFile = (data: any) => {
   return request.post(API.DELETE_FILE, data)
+}
+
+// 地图综合的接口
+export const reqGenerateData = (data:any) =>{
+  return request.post(API.GENE_URL,data,{
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  })
 }

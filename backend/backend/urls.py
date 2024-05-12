@@ -26,6 +26,7 @@ urlpatterns = [
     re_path(r'^upload/?$', views.upload_file, name='upload'),
     re_path(r'^submit/?$', views.submit_form, name='submit'),
     re_path(r'^getdata/?$', views.get_data, name='anomaly'),
-    re_path(r'^deletedata/?$', views.delete_data, name='anomaly'),
-    re_path(r'^deletefile/?$', views.delete_file, name='anomaly')
+    re_path(r'^deletedata/?$', views.delete_data, name='deletedata'),
+    re_path(r'^deletefile/?$', views.delete_file, name='deletefile'),
+    re_path(r'^generate/?$', views.gene, name='generate')
 ]

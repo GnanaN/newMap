@@ -13,7 +13,7 @@
             <el-button
               size="small"
               icon="Monitor"
-              @click=""
+              @click="generate(row.id)"
             >综合</el-button>
             <el-popconfirm
               :title="`确定要删除${row.attrName}属性吗？`"
@@ -71,12 +71,12 @@
     </div>
   </el-card>
   <!-- ref="mainCRef" 控制子组件 -->
-  <mainC v-if="scene === 2"  @changemainScene="changeSceneTo"></mainC>
+  <mainC v-if="scene === 2"  @changemainScene="changeSceneTo" ></mainC>
 </template>
 
 <script setup lang="ts">
 import {ref, provide, watch, onBeforeMount, toRaw} from 'vue'
-import {reqSubmitData, reqGetData, reqDeleteData} from '@/api/map/index'
+import {reqSubmitData, reqGetData, reqDeleteData,reqGenerateData} from '@/api/map/index'
 import upload from './upload/index.vue'
 import mainC from '@/view/mainC/index.vue'
 import { ElMessage } from 'element-plus';
@@ -124,6 +124,9 @@ const submitData = () => {
   formData.append('intensity_file',loadIntensity.value.fileList[0].url)
   formData.append('impact_file', loadInfluence.value.fileList[0].url)
   formData.append('attribute_file', loadProperty.value.fileList[0].url)
+  formData.append('intensity_file_id',loadIntensity.value.fileList[0].id)
+  formData.append('impact_file_id', loadInfluence.value.fileList[0].id)
+  formData.append('attribute_file_id', loadProperty.value.fileList[0].id)
 
   // 打印 FormData 对象的内容
   for (let [key, value] of formData.entries()) {
@@ -150,6 +153,7 @@ const submitData = () => {
 
   //切换场景
   scene.value = 0
+
 }
 
 const cancel = ()=>{
@@ -189,7 +193,7 @@ watch(scene, (newVal)=>{
 onBeforeMount(()=>{
   getData()
 })
-
+//删除数据的函数
 const deleteData = async(row : any) => {
   console.log('row',row)
   //删除输入的数据要符合后端要求的格式
@@ -203,6 +207,23 @@ const deleteData = async(row : any) => {
     console.log('删除失败')
   }
 }
+//综合按钮对应的函数
+const generate = async(row : any) => {
+  console.log('row',row)
+  //删除输入的数据要符合后端要求的格式
+  const body_json = {'id': row}
+  const res = await reqGenerateData(body_json)
+  if (res.code === 200){
+    console.log('综合成功')
+
+    scene.value = 2
+  }
+  else{
+    console.log('综合失败')
+  }
+}
+
+
 </script>
 
 <style lang="scss" scoped>
